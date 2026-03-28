@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { useScrollDepth } from '../hooks/useScrollDepth';
 import { ZONES } from '../utils/depthUtils';
 
@@ -14,36 +14,9 @@ export default function DepthHUD({ onToggleMute, muted, audioStarted }) {
   const { depth, pressure, zoneIndex, scrollVelocity } = useScrollDepth();
   const zone = ZONE_DESCRIPTORS[zoneIndex] || ZONE_DESCRIPTORS[0];
   const pct  = Math.min((depth / 36000) * 100, 100);
-  const hudRef = useRef(null);
-
-  /* ── 3D Tilt HUD Effect ── */
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (!hudRef.current) return;
-      const rect = hudRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = (centerY - y) / 10;
-      const rotateY = (x - centerX) / 10;
-
-      hudRef.current.style.transform = `translateY(-50%) perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    };
-
-    const handleMouseLeave = () => {
-      if (!hudRef.current) return;
-      hudRef.current.style.transform = `translateY(-50%) perspective(1000px) rotateX(0deg) rotateY(0deg)`;
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
 
   return (
-    <aside ref={hudRef} className="depth-hud" aria-label="Depth and pressure indicators">
+    <aside className="depth-hud" aria-label="Depth and pressure indicators">
       {/* Depth meter bar */}
       <div className="hud-meter-track" aria-label={`Current depth: ${depth.toLocaleString()} metres`}>
         <div className="hud-meter-label">DEPTH</div>
