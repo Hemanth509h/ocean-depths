@@ -16,7 +16,13 @@ export default function ThreeVolumetricDots({ count = 1000, color = "#90e0ef", o
     const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 2000);
     camera.position.z = 1000;
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    } catch (e) {
+      return;
+    }
+    if (!renderer.getContext()) return;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(w, h);
 

@@ -93,7 +93,7 @@ export default function Hero({ audioRef }) {
 
     tl.set(overlayRef.current, { opacity: 1 })
       .to(overlayRef.current, { opacity: 0, duration: 1.8, ease: 'power2.out' }, 0.3)
-      .from(titleRef.current, { opacity: 0, y: 60, filter: 'blur(20px)', duration: 1.8, ease: 'power3.out' }, 0.8)
+      .from(titleRef.current, { opacity: 0, y: 60, duration: 1.8, ease: 'power3.out', clearProps: 'opacity,y,filter' }, 0.8)
       .from(subtitleRef.current, { opacity: 0, y: 30, filter: 'blur(10px)', duration: 1.4, ease: 'power3.out' }, 1.4)
       .from(ctaRef.current, { opacity: 0, y: 20, duration: 1.0, ease: 'power2.out' }, 2.0);
 

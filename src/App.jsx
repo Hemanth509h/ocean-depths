@@ -29,11 +29,12 @@ function OceanExperience() {
   /* ── Smooth Scroll (Lenis) ────────────────────────────────────── */
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 2.2,
+      easing: (t) => 1 - Math.pow(1 - t, 4),
       smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 0.8,
+      touchMultiplier: 1.2,
+      infinite: false,
     });
 
     const raf = (time) => {

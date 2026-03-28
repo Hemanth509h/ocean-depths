@@ -109,7 +109,7 @@ export default function Sunlight() {
       if (fish.x < -5)  { fish.x = 105; fish.dir = -1; }
       fish.y = Math.max(5, Math.min(95, fish.y));
 
-      const px = (fish.x / 100) * w;
+      const px = (fish.x / 100) * canvas.width;
       const py = (fish.y / 100) * h;
       const flip = fish.dir < 0;
 
