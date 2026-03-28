@@ -93,10 +93,19 @@ export function useAudio() {
 
   const start = useCallback(() => {
     if (startedRef.current) return;
-    const actx = new (window.AudioContext || window.webkitAudioContext)();
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    
+    const actx = new AudioContextClass();
     ctxRef.current = actx;
     nodesRef.current = createAmbient(actx);
     startedRef.current = true;
+    
+    // Explicitly resume in case it's in suspended state
+    if (actx.state === 'suspended') {
+      actx.resume();
+    }
+    
     // Set initial zone volumes
     setZone('surface');
   }, [createAmbient]);
@@ -109,9 +118,9 @@ export function useAudio() {
     const t = actx.currentTime;
     const mute = mutedRef.current ? 0 : 1;
 
-    nodesRef.current.ambientGain.gain.setTargetAtTime(cfg.ambient * mute * 0.08, t, 2);
-    nodesRef.current.tensionGain.gain.setTargetAtTime(cfg.tension * mute * 0.06, t, 2);
-    nodesRef.current.abyssGain.gain.setTargetAtTime(cfg.abyss * mute * 0.05, t, 2);
+    nodesRef.current.ambientGain.gain.setTargetAtTime(cfg.ambient * mute * 0.15, t, 1.5);
+    nodesRef.current.tensionGain.gain.setTargetAtTime(cfg.tension * mute * 0.12, t, 1.5);
+    nodesRef.current.abyssGain.gain.setTargetAtTime(cfg.abyss * mute * 0.10, t, 1.5);
   }, []);
 
   const toggleMute = useCallback(() => {

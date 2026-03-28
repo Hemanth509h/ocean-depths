@@ -58,7 +58,6 @@ export function useDepthAnimations() {
 
     return {
       brightness,
-      blur,
       saturation,
       vignetteOpacity,
       pressureTint,

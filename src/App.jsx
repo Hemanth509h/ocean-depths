@@ -86,27 +86,16 @@ function OceanExperience() {
     }
   }, [zoneIndex, audioStarted, audio]);
 
-  /* ── Motion blur on fast scroll ──────────────────────────────── */
-  useEffect(() => {
-    const root = document.documentElement;
-    if (scrollVelocity > 4) {
-      root.style.setProperty('--motion-blur', `${Math.min(scrollVelocity * 1.2, 8)}px`);
-    } else {
-      root.style.setProperty('--motion-blur', '0px');
-    }
-  }, [scrollVelocity]);
-
   /* ── Depth-based visual animations ───────────────────────────── */
   useEffect(() => {
     const root = document.documentElement;
     const {
-      brightness, blur, saturation,
+      brightness, saturation,
       vignetteOpacity, pressureTint, ambientHue,
     } = depthAnim;
 
     // CSS custom properties (available to all children)
     root.style.setProperty('--depth-brightness',   brightness.toFixed(3));
-    root.style.setProperty('--depth-blur',         `${blur.toFixed(2)}px`);
     root.style.setProperty('--depth-saturation',   saturation.toFixed(3));
     root.style.setProperty('--depth-vignette',     vignetteOpacity.toFixed(3));
     root.style.setProperty('--depth-pressure-tint',`${pressureTint}`);
@@ -117,7 +106,6 @@ function OceanExperience() {
       mainRef.current.style.filter = [
         `brightness(${brightness.toFixed(3)})`,
         `saturate(${saturation.toFixed(3)})`,
-        blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '',
       ].filter(Boolean).join(' ');
     }
   }, [depthAnim]);
@@ -138,6 +126,7 @@ function OceanExperience() {
     <div
       className={`ocean-wrapper zone-${['surface','sunlight','twilight','midnight','abyss'][zoneIndex]}`}
       onClick={handleFirstInteraction}
+      onTouchStart={handleFirstInteraction}
     >
       {/* Dynamic background */}
       <div ref={bgRef} className="ocean-bg" aria-hidden="true" />

@@ -20,8 +20,10 @@ export default function Hero({ audioRef }) {
     let animId;
 
     const resize = () => {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width  = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.scale(dpr, dpr);
     };
     resize();
     window.addEventListener('resize', resize);
@@ -61,13 +63,14 @@ export default function Hero({ audioRef }) {
     };
     window.addEventListener('click', onClick);
 
-    // Auto-ripple for visual flair
+    // Auto-ripple for visual flair (less frequent on mobile)
     const autoRipple = setInterval(() => {
+      if (document.hidden) return;
       addRipple(
         Math.random() * window.innerWidth,
         Math.random() * (window.innerHeight * 0.7)
       );
-    }, 3500);
+    }, window.innerWidth < 768 ? 6000 : 3500);
 
     return () => {
       cancelAnimationFrame(animId);

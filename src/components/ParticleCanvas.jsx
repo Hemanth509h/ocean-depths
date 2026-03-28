@@ -32,8 +32,10 @@ export default function ParticleCanvas() {
     if (prefersReducedMotion) return;
 
     const resize = () => {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x for performance
+      canvas.width  = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.scale(dpr, dpr);
     };
     resize();
     window.addEventListener('resize', resize);
@@ -43,7 +45,7 @@ export default function ParticleCanvas() {
     // Spawn initial particles
     const spawnParticles = () => {
       const cfg = getCfg();
-      const reduce = window.innerWidth < 768 ? 0.4 : 1; // mobile reduction
+      const reduce = window.innerWidth < 768 ? 0.3 : 1;
       const target = Math.floor(cfg.count * reduce);
       while (particles.current.length < target) {
         particles.current.push(createParticle(canvas.width, canvas.height, cfg));
@@ -61,7 +63,7 @@ export default function ParticleCanvas() {
       particles.current = particles.current.filter(p => p.life > 0.01);
 
       // Respawn
-      const reduce = window.innerWidth < 768 ? 0.4 : 1;
+      const reduce = window.innerWidth < 768 ? 0.3 : 1;
       const target = Math.floor(cfg.count * reduce);
       while (particles.current.length < target) {
         const p = createParticle(canvas.width, canvas.height, cfg);

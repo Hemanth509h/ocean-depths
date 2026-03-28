@@ -51,6 +51,7 @@ body {
 .ocean-wrapper {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
 }
 
@@ -1033,13 +1034,22 @@ body {
 
   .depth-hud {
     right: 8px;
-    padding: 10px 7px;
-    gap: 8px;
-    min-width: 60px;
+    padding: 8px 5px;
+    gap: 6px;
+    min-width: 54px;
+    border-radius: 12px;
   }
 
-  .hud-meter-bar { height: 60px; }
+  .hud-meter-bar { height: 45px; }
+  .hud-meter-label { font-size: 6px; }
   .hud-meter-value { font-size: 7px; }
+  .hud-zone-badge { padding: 3px 4px; max-width: 50px; font-size: 7px; }
+  .hud-zone-icon { font-size: 10px; }
+  .hud-pressure-value { font-size: 11px; }
+  .hud-pressure-label { font-size: 6px; }
+  .hud-velocity { width: 40px; }
+  .hud-mute-btn { width: 28px; height: 28px; font-size: 12px; }
+
   .hud-zone-name { display: none; }
   .hud-pressure-unit { display: none; }
 
