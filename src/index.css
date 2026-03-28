@@ -999,30 +999,33 @@ body {
   background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,4,0.85) 100%);
 }
 
-.abyss-mouse-glow {
-  position: absolute;
+.mouse-glow {
+  position: fixed;
   inset: 0;
-  z-index: 5;
+  z-index: 9999;
   pointer-events: none;
   background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), 
-              rgba(0, 180, 216, 0.12) 0%, 
-              transparent 35%);
-  mix-blend-mode: soft-light;
+              rgba(144, 224, 239, 0.45) 0%, 
+              rgba(0, 119, 182, 0.1) 10%,
+              transparent 30%);
+  opacity: 0;
   transition: opacity 0.8s ease;
   will-change: background;
 }
 
-.abyss-section:hover .abyss-mouse-glow {
+/* Show glow only in dark zones */
+.zone-midnight .mouse-glow,
+.zone-abyss .mouse-glow {
   opacity: 1;
 }
 
-.abyss-mouse-glow::after {
+.mouse-glow::after {
   content: '';
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), 
-              rgba(144, 224, 239, 0.08) 0%, 
-              transparent 15%);
+              rgba(255, 255, 255, 0.15) 0%, 
+              transparent 5%);
   pointer-events: none;
 }
 

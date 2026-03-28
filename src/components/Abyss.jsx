@@ -43,25 +43,12 @@ export default function Abyss({ audioRef }) {
   const sectionRef = useRef(null);
   const revealRef  = useReveal({ stagger: 110 });
   const [showThree, setShowThree] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
     // Show Three.js field only after zone entry for performance
     const timer = setTimeout(() => setShowThree(true), 1200);
     return () => clearTimeout(timer);
   }, []);
-
-  const handleMouseMove = (e) => {
-    if (!sectionRef.current) return;
-    const { left, top, width, height } = sectionRef.current.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setMousePos({ x, y });
-    
-    // Smoothly update CSS variables
-    sectionRef.current.style.setProperty('--mx', `${x}%`);
-    sectionRef.current.style.setProperty('--my', `${y}%`);
-  };
 
   /* ── Procedural canvas ── */
   useEffect(() => {
@@ -159,14 +146,14 @@ export default function Abyss({ audioRef }) {
     <section
       ref={sectionRef}
       id="abyss"
-      onMouseMove={handleMouseMove}
+      className="zone-section abyss-section"
       aria-label="The Abyss — beyond 11000 metres"
     >
       {showThree && <ThreeVolumetricDots count={350} opacity={0.2 * brightness} color="#0077b6" />}
       
-      {/* Dynamic mouse-following glow flashlight */}
-      <div className="abyss-mouse-glow" aria-hidden="true" />
-      
+      {/* Dynamic mouse-following glow flashlight (Global Layer) */}
+      <div className="mouse-glow" aria-hidden="true" />
+
       <canvas ref={canvasRef} className="zone-canvas abyss-canvas" aria-hidden="true" />
       <div 
         className="abyss-inner-wrapper" 

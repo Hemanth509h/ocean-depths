@@ -86,6 +86,18 @@ function OceanExperience() {
     }
   }, [zoneIndex, audioStarted, audio]);
 
+  /* ── Global mouse tracking for dark zone flashlight ───────────── */
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      const x = (e.clientX / window.innerWidth) * 100;
+      const y = (e.clientY / window.innerHeight) * 100;
+      document.documentElement.style.setProperty('--mx', `${x}%`);
+      document.documentElement.style.setProperty('--my', `${y}%`);
+    };
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+  }, []);
+
   /* ── Depth-based visual animations ───────────────────────────── */
   useEffect(() => {
     const root = document.documentElement;
