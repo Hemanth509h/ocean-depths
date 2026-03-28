@@ -95,20 +95,18 @@ export function useAudio() {
     if (startedRef.current) return;
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) return;
-    
+
     const actx = new AudioContextClass();
     ctxRef.current = actx;
     nodesRef.current = createAmbient(actx);
     startedRef.current = true;
-    
-    // Explicitly resume in case it's in suspended state
-    if (actx.state === 'suspended') {
-      actx.resume();
-    }
-    
-    // Set initial zone volumes
-    setZone('surface');
-  }, [createAmbient]);
+
+    // Always resume — new AudioContexts may start suspended in some browsers.
+    // Await the promise so gain scheduling happens after context is running.
+    actx.resume().then(() => {
+      setZone('surface');
+    });
+  }, [createAmbient]); // setZone is defined below; closure reads it correctly at call-time
 
   const setZone = useCallback((zoneName) => {
     if (!startedRef.current || !nodesRef.current.ambientGain) return;
@@ -118,9 +116,9 @@ export function useAudio() {
     const t = actx.currentTime;
     const mute = mutedRef.current ? 0 : 1;
 
-    nodesRef.current.ambientGain.gain.setTargetAtTime(cfg.ambient * mute * 0.15, t, 1.5);
-    nodesRef.current.tensionGain.gain.setTargetAtTime(cfg.tension * mute * 0.12, t, 1.5);
-    nodesRef.current.abyssGain.gain.setTargetAtTime(cfg.abyss * mute * 0.10, t, 1.5);
+    nodesRef.current.ambientGain.gain.setTargetAtTime(cfg.ambient * mute * 0.55, t, 1.5);
+    nodesRef.current.tensionGain.gain.setTargetAtTime(cfg.tension * mute * 0.45, t, 1.5);
+    nodesRef.current.abyssGain.gain.setTargetAtTime(cfg.abyss * mute * 0.40, t, 1.5);
   }, []);
 
   const toggleMute = useCallback(() => {
