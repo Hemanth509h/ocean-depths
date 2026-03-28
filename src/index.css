@@ -420,9 +420,90 @@ body {
 
 .hero-subtitle em { color: var(--ocean-cyan); font-style: italic; }
 
-/* CTA */
-.hero-cta { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+/* ── Hero Stat Pills ─────────────────────────────────────────── */
+.hero-stats {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
 
+.hero-stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: rgba(144,224,239,0.06);
+  border: 1px solid rgba(144,224,239,0.18);
+  border-radius: 14px;
+  padding: 0.65rem 1.1rem;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.3s, background 0.3s;
+}
+.hero-stat-pill:hover {
+  border-color: rgba(144,224,239,0.45);
+  background: rgba(144,224,239,0.1);
+}
+.hero-stat-value {
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 700;
+  color: var(--ocean-cyan);
+  text-shadow: 0 0 18px rgba(144,224,239,0.6);
+  font-family: var(--font-display);
+}
+.hero-stat-label {
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: rgba(202,240,248,0.6);
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+/* ── CTA ─────────────────────────────────────────────────────── */
+.hero-cta { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+
+.cta-audio-hint {
+  font-size: 0.68rem;
+  color: rgba(144,224,239,0.35);
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+/* ── Scroll Arrow ────────────────────────────────────────────── */
+.hero-scroll-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: breathe 2.8s ease-in-out infinite;
+}
+
+.scroll-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(144,224,239,0.7);
+}
+
+.arrow-bounce {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: arrowBounce 1.6s ease-in-out infinite;
+}
+
+@keyframes arrowBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(8px); }
+}
+
+.arrow-bounce svg path {
+  filter: drop-shadow(0 0 6px rgba(144,224,239,0.7));
+}
+
+/* keep old arrow classes for any remnant references */
 .cta-scroll-hint {
   display: flex;
   flex-direction: column;

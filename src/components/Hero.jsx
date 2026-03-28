@@ -1,6 +1,12 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDepth } from '../context/DepthContext';
 import gsap from 'gsap';
+
+const STATS = [
+  { value: '71%',    label: 'of Earth covered by ocean' },
+  { value: '36,000m', label: 'deepest point — Mariana Trench' },
+  { value: '95%',    label: 'of ocean remains unexplored' },
+];
 
 export default function Hero({ audioRef }) {
   const canvasRef   = useRef(null);
@@ -8,11 +14,12 @@ export default function Hero({ audioRef }) {
   const overlayRef  = useRef(null);
   const titleRef    = useRef(null);
   const subtitleRef = useRef(null);
+  const statsRef    = useRef(null);
   const ctaRef      = useRef(null);
   const ripples     = useRef([]);
   const { setIntroComplete } = useDepth();
 
-  /* ── Ripple effect on canvas ─────────────────────────────────────── */
+  /* ── Ripple canvas ───────────────────────────────────────────── */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -21,7 +28,7 @@ export default function Hero({ audioRef }) {
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width  = window.innerWidth * dpr;
+      canvas.width  = window.innerWidth  * dpr;
       canvas.height = window.innerHeight * dpr;
       ctx.scale(dpr, dpr);
     };
@@ -29,7 +36,7 @@ export default function Hero({ audioRef }) {
     window.addEventListener('resize', resize);
 
     const addRipple = (x, y) => {
-      ripples.current.push({ x, y, r: 0, maxR: 200, opacity: 0.8, speed: 4 });
+      ripples.current.push({ x, y, r: 0, maxR: 220, opacity: 0.75, speed: 4 });
     };
 
     const drawFrame = () => {
@@ -39,18 +46,17 @@ export default function Hero({ audioRef }) {
         ctx.beginPath();
         ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(144, 224, 239, ${rp.opacity})`;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
-        rp.r += rp.speed;
-        rp.opacity *= 0.93;
-        // Secondary ring
-        if (rp.r > 40) {
+        if (rp.r > 50) {
           ctx.beginPath();
-          ctx.arc(rp.x, rp.y, rp.r * 0.6, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(144, 224, 239, ${rp.opacity * 0.4})`;
+          ctx.arc(rp.x, rp.y, rp.r * 0.55, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(144, 224, 239, ${rp.opacity * 0.35})`;
           ctx.lineWidth = 1;
           ctx.stroke();
         }
+        rp.r       += rp.speed;
+        rp.opacity *= 0.93;
       });
       animId = requestAnimationFrame(drawFrame);
     };
@@ -58,19 +64,17 @@ export default function Hero({ audioRef }) {
 
     const onClick = (e) => {
       addRipple(e.clientX, e.clientY);
-      // Start audio on first interaction
       if (audioRef?.current?.start) audioRef.current.start();
     };
     window.addEventListener('click', onClick);
 
-    // Auto-ripple for visual flair (less frequent on mobile)
     const autoRipple = setInterval(() => {
       if (document.hidden) return;
       addRipple(
         Math.random() * window.innerWidth,
-        Math.random() * (window.innerHeight * 0.7)
+        Math.random() * (window.innerHeight * 0.75),
       );
-    }, window.innerWidth < 768 ? 6000 : 3500);
+    }, window.innerWidth < 768 ? 5000 : 3000);
 
     return () => {
       cancelAnimationFrame(animId);
@@ -80,10 +84,10 @@ export default function Hero({ audioRef }) {
     };
   }, [audioRef]);
 
-  /* ── Cinematic intro sequence ────────────────────────────────────── */
+  /* ── Cinematic intro sequence ────────────────────────────────── */
   useEffect(() => {
-    // Lock scroll
     document.body.style.overflow = 'hidden';
+
     const tl = gsap.timeline({
       onComplete: () => {
         document.body.style.overflow = '';
@@ -91,17 +95,15 @@ export default function Hero({ audioRef }) {
       },
     });
 
-    tl.set(overlayRef.current, { opacity: 1 })
-      .to(overlayRef.current, { opacity: 0, duration: 1.8, ease: 'power2.out' }, 0.3)
-      .from(titleRef.current, { opacity: 0, y: 60, duration: 1.8, ease: 'power3.out', clearProps: 'opacity,y,filter' }, 0.8)
-      .from(subtitleRef.current, { opacity: 0, y: 30, filter: 'blur(10px)', duration: 1.4, ease: 'power3.out' }, 1.4)
-      .from(ctaRef.current, { opacity: 0, y: 20, duration: 1.0, ease: 'power2.out' }, 2.0);
+    tl.set(overlayRef.current,  { opacity: 1 })
+      .to(overlayRef.current,   { opacity: 0, duration: 1.8, ease: 'power2.out' }, 0.3)
+      .from(titleRef.current,   { opacity: 0, y: 50, duration: 1.6, ease: 'power3.out', clearProps: 'opacity,y,filter' }, 0.9)
+      .from(subtitleRef.current,{ opacity: 0, y: 28, filter: 'blur(8px)', duration: 1.3, ease: 'power3.out' }, 1.5)
+      .from(statsRef.current,   { opacity: 0, y: 20, duration: 1.0, ease: 'power2.out' }, 2.0)
+      .from(ctaRef.current,     { opacity: 0, y: 16, duration: 0.9, ease: 'power2.out' }, 2.4);
 
     return () => tl.kill();
   }, []);
-
-  /* ── Wave SVG parallax ──────────────────────────────────────────── */
-  const { scrollRatio } = useDepth();
 
   return (
     <section
@@ -123,13 +125,11 @@ export default function Hero({ audioRef }) {
         <div className="wave wave-3" />
       </div>
 
-      {/* Surface Life: Seagulls */}
+      {/* Seagulls */}
       <div className="surface-life" aria-hidden="true">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className={`seagull seagull-${i}`} style={{
-            animationDelay: `${i * 8}s`,
-            top: `${15 + i * 10}%`
-          }}>
+          <div key={i} className={`seagull seagull-${i}`}
+            style={{ animationDelay: `${i * 8}s`, top: `${15 + i * 10}%` }}>
             <svg viewBox="0 0 24 24" width="24" height="24">
               <path fill="currentColor" d="M12,18L4,14V12L12,16L20,12V14L12,18Z" />
             </svg>
@@ -151,24 +151,45 @@ export default function Hero({ audioRef }) {
           <span className="title-separator">—</span>
           <span className="title-line-2">Fear of the Deep</span>
         </h1>
+
         <p ref={subtitleRef} className="hero-subtitle">
-          You stand at the surface.<br />
-          Below you lies a world no human fully understands.<br />
-          <em>Are you brave enough to descend?</em>
+          You stand at the edge of the known world.<br />
+          Below you lies 36,000 metres of darkness, pressure,<br />
+          and creatures science has barely begun to understand.<br />
+          <em>Dare to descend?</em>
         </p>
+
+        {/* Stat pills */}
+        <div ref={statsRef} className="hero-stats">
+          {STATS.map((s, i) => (
+            <div key={i} className="hero-stat-pill">
+              <span className="hero-stat-value">{s.value}</span>
+              <span className="hero-stat-label">{s.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA + down arrow */}
         <div ref={ctaRef} className="hero-cta">
-          <div className="cta-scroll-hint">
-            <span>Scroll to descend</span>
-            <div className="cta-arrow">
-              <div className="arrow-shaft" />
-              <div className="arrow-head" />
+          <p className="cta-audio-hint">🔊 Click anywhere to activate audio</p>
+          <div className="hero-scroll-arrow" aria-label="Scroll down">
+            <span className="scroll-label">Scroll to descend</span>
+            <div className="arrow-bounce">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <path d="M6 10 L16 22 L26 10" stroke="#90e0ef" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true"
+                style={{ opacity: 0.45, marginTop: '-10px' }}>
+                <path d="M6 10 L16 22 L26 10" stroke="#90e0ef" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
           </div>
-          <p className="cta-warning">⚠ Click anywhere to activate audio</p>
         </div>
       </div>
 
-      {/* Surface depth display */}
+      {/* Surface depth badge */}
       <div className="surface-depth-badge">
         <span className="depth-label">DEPTH</span>
         <span className="depth-value">0 m</span>
