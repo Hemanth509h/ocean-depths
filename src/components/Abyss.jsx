@@ -151,9 +151,6 @@ export default function Abyss({ audioRef }) {
     >
       {showThree && <ThreeVolumetricDots count={350} opacity={0.2 * brightness} color="#0077b6" />}
       
-      {/* Dynamic mouse-following glow flashlight (Global Layer) */}
-      <div className="mouse-glow" aria-hidden="true" />
-
       <canvas ref={canvasRef} className="zone-canvas abyss-canvas" aria-hidden="true" />
       <div 
         className="abyss-inner-wrapper" 

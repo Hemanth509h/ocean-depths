@@ -102,9 +102,6 @@ export default function Midnight() {
     >
       {showThree && <ThreeVolumetricDots count={350} opacity={0.25} color="#0077b6" />}
       
-      {/* Global mouse-following glow flashlight */}
-      <div className="mouse-glow" aria-hidden="true" />
-      
       <canvas ref={canvasRef} className="zone-canvas" style={{ opacity: 0.7 }} aria-hidden="true" />
       <div ref={shakeRef} className="midnight-inner">
         {/* Void particles */}

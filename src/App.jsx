@@ -12,6 +12,7 @@ import Abyss from './components/Abyss';
 import DepthHUD from './components/DepthHUD';
 import ParticleCanvas from './components/ParticleCanvas';
 import CursorFollower from './components/CursorFollower';
+import GlowCanvas from './components/GlowCanvas';
 import Lenis from 'lenis';
 
 function OceanExperience() {
@@ -146,6 +147,9 @@ function OceanExperience() {
     >
       {/* Dynamic background */}
       <div ref={bgRef} className="ocean-bg" aria-hidden="true" />
+
+      {/* Multi-layer glow engine (canvas, mix-blend-mode: screen) */}
+      <GlowCanvas />
 
       {/* Global particle layer */}
       <ParticleCanvas />

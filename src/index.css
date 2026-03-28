@@ -98,18 +98,6 @@ body {
 }
 
 /* ── Custom Cursor ───────────────────────────────────────────── */
-.cursor-aura {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9990;
-  top: 0;
-  left: 0;
-  will-change: transform, width, height, opacity;
-  filter: blur(18px);
-  mix-blend-mode: screen;
-}
-
 .cursor-dot {
   position: fixed;
   width: 6px;
@@ -146,8 +134,8 @@ body {
 }
 
 @keyframes cursorRipple {
-  0%   { width: 0;     height: 0;     opacity: 0.9; }
-  100% { width: 80px;  height: 80px;  opacity: 0;   }
+  0%   { width: 0px;  height: 0px;  opacity: 0.9; }
+  100% { width: 90px; height: 90px; opacity: 0;   }
 }
 
 /* ── Depth HUD ───────────────────────────────────────────────── */
@@ -1124,56 +1112,7 @@ body {
   background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,4,0.85) 100%);
 }
 
-.mouse-glow {
-  position: fixed;
-  inset: 0;
-  z-index: 9991;
-  pointer-events: none;
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%),
-              rgba(144, 224, 239, 0.18) 0%,
-              rgba(0, 119, 182, 0.06) 12%,
-              transparent 28%);
-  opacity: 1;
-  will-change: background;
-  mix-blend-mode: screen;
-}
-
-/* Ramp up intensity as zones get darker */
-.zone-sunlight .mouse-glow {
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%),
-              rgba(144, 224, 239, 0.22) 0%,
-              rgba(72, 202, 228, 0.07) 13%,
-              transparent 30%);
-}
-.zone-twilight .mouse-glow {
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%),
-              rgba(144, 224, 239, 0.35) 0%,
-              rgba(0, 150, 199, 0.10) 15%,
-              transparent 32%);
-}
-.zone-midnight .mouse-glow {
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%),
-              rgba(144, 224, 239, 0.55) 0%,
-              rgba(0, 180, 216, 0.18) 18%,
-              transparent 36%);
-}
-.zone-abyss .mouse-glow {
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%),
-              rgba(144, 224, 239, 0.75) 0%,
-              rgba(144, 224, 239, 0.25) 20%,
-              rgba(0, 119, 182, 0.08) 38%,
-              transparent 52%);
-}
-
-.mouse-glow::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%),
-              rgba(255, 255, 255, 0.2) 0%,
-              transparent 4%);
-  pointer-events: none;
-}
+/* mouse-glow replaced by GlowCanvas (canvas-based, mix-blend-mode: screen) */
 
 /* ── SCROLL REVEAL ───────────────────────────────────────────── */
 .reveal-item {
