@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useScrollDepth } from '../hooks/useScrollDepth';
+import { useDepthAnimations } from '../hooks/useDepthAnimations';
 import { useReveal } from '../hooks/useReveal';
 
 const NUM_FISH = 12;
@@ -38,7 +39,8 @@ const FACT_CARDS = [
 ];
 
 export default function Sunlight() {
-  const { scrollVelocity } = useScrollDepth();
+  const { scrollVelocity, zoneProgress } = useScrollDepth();
+  const { particleSpeedMult, brightness } = useDepthAnimations();
   const canvasRef  = useRef(null);
   const fishRef    = useRef(FISH_DATA.map(f => ({ ...f })));
   const rafRef     = useRef(null);
@@ -82,7 +84,7 @@ export default function Sunlight() {
       ctx.translate(px, py);
       ctx.beginPath();
       ctx.ellipse(0, 0, giant.w, giant.h, Math.sin(t * 0.0002) * 0.05, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(2, 62, 138, 0.08)';
+      ctx.fillStyle = `rgba(2, 62, 138, ${0.08 * brightness})`;
       ctx.fill();
       
       // Tail fluke
@@ -97,10 +99,10 @@ export default function Sunlight() {
     };
 
     const drawFish = (fish, t) => {
-      const w = canvas.width;
       const h = canvas.height;
 
-      fish.x += fish.dir * fish.speed * (scatterRef.current ? 4 : 1);
+      const combinedSpeed = fish.speed * particleSpeedMult * (scatterRef.current ? 4 : 1);
+      fish.x += fish.dir * combinedSpeed;
       fish.y = fish.y + Math.sin(t * fish.frequency + fish.phase) * 0.3;
 
       if (fish.x > 105) { fish.x = -5; fish.dir = 1; }
@@ -152,7 +154,10 @@ export default function Sunlight() {
         const speed = 1 + scrollVelocity * 0.2;
         const len = (h * 0.8) * (0.7 + 0.3 * Math.sin(t * 0.0007 * speed + i));
         const grd = ctx.createLinearGradient(x, 0, x + Math.sin(angle) * len, len);
-        grd.addColorStop(0, 'rgba(144,224,239,0.18)');
+        
+        // Rays fade out as we go deeper into the zone
+        const rayAlpha = Math.max(0, 0.18 * (1 - zoneProgress * 1.2)) * brightness;
+        grd.addColorStop(0, `rgba(144,224,239,${rayAlpha})`);
         grd.addColorStop(1, 'rgba(0,119,182,0)');
         ctx.save();
         ctx.translate(x, 0);
@@ -175,7 +180,7 @@ export default function Sunlight() {
         const by = ((t * 0.05 * (i * 0.3 + 0.2) + i * 120) % canvas.height);
         ctx.beginPath();
         ctx.arc(bx, by, 2 + (i % 3), 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(144,224,239,0.4)';
+        ctx.strokeStyle = `rgba(144,224,239,${0.4 * (1 - zoneProgress)})`;
         ctx.lineWidth = 1;
         ctx.stroke();
       }

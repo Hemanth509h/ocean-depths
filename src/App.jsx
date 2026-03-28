@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DepthProvider, useDepth } from './context/DepthContext';
 import { useScrollDepth } from './hooks/useScrollDepth';
+import { useDepthAnimations } from './hooks/useDepthAnimations';
 import { useAudio } from './hooks/useAudio';
 import { ZONE_COLORS, getZoneIndex, lerp } from './utils/depthUtils';
 import Hero from './components/Hero';
@@ -15,12 +16,14 @@ import Lenis from 'lenis';
 
 function OceanExperience() {
   const { scrollRatio, zoneIndex, scrollVelocity } = useScrollDepth();
+  const depthAnim = useDepthAnimations();
   const audio = useAudio();
   const audioRef = useRef(audio);
   audioRef.current = audio;
   const [muted, setMuted] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
-  const bgRef = useRef(null);
+  const bgRef   = useRef(null);
+  const mainRef = useRef(null);
   const prevZoneRef = useRef(0);
 
   /* ── Smooth Scroll (Lenis) ────────────────────────────────────── */
@@ -93,6 +96,32 @@ function OceanExperience() {
     }
   }, [scrollVelocity]);
 
+  /* ── Depth-based visual animations ───────────────────────────── */
+  useEffect(() => {
+    const root = document.documentElement;
+    const {
+      brightness, blur, saturation,
+      vignetteOpacity, pressureTint, ambientHue,
+    } = depthAnim;
+
+    // CSS custom properties (available to all children)
+    root.style.setProperty('--depth-brightness',   brightness.toFixed(3));
+    root.style.setProperty('--depth-blur',         `${blur.toFixed(2)}px`);
+    root.style.setProperty('--depth-saturation',   saturation.toFixed(3));
+    root.style.setProperty('--depth-vignette',     vignetteOpacity.toFixed(3));
+    root.style.setProperty('--depth-pressure-tint',`${pressureTint}`);
+    root.style.setProperty('--depth-hue',          `${ambientHue}deg`);
+
+    // Apply filter directly to the main content wrapper
+    if (mainRef.current) {
+      mainRef.current.style.filter = [
+        `brightness(${brightness.toFixed(3)})`,
+        `saturate(${saturation.toFixed(3)})`,
+        blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '',
+      ].filter(Boolean).join(' ');
+    }
+  }, [depthAnim]);
+
   const handleFirstInteraction = () => {
     if (!audioStarted) {
       audio.start();
@@ -127,7 +156,15 @@ function OceanExperience() {
       />
 
       {/* Story sections */}
-      <main className="ocean-main">
+      {/* Depth pressure colour tint overlay */}
+      <div
+        className="depth-pressure-overlay"
+        aria-hidden="true"
+        style={{ opacity: depthAnim.pressureTint / 100 }}
+      />
+
+      {/* Story sections */}
+      <main ref={mainRef} className="ocean-main">
         <Hero audioRef={audioRef} />
         <Sunlight />
         <Twilight />
@@ -135,8 +172,12 @@ function OceanExperience() {
         <Abyss audioRef={audioRef} />
       </main>
 
-      {/* Global overlay vignette */}
-      <div className="global-vignette" aria-hidden="true" />
+      {/* Global overlay vignette — opacity driven by depth */}
+      <div
+        className="global-vignette"
+        aria-hidden="true"
+        style={{ opacity: depthAnim.vignetteOpacity }}
+      />
     </div>
   );
 }

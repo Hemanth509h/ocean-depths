@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useScrollDepth } from '../hooks/useScrollDepth';
+import { useDepthAnimations } from '../hooks/useDepthAnimations';
 import { useReveal } from '../hooks/useReveal';
 
 const CREATURES = [
@@ -9,7 +10,8 @@ const CREATURES = [
 ];
 
 export default function Twilight() {
-  const { scrollVelocity } = useScrollDepth();
+  const { scrollVelocity, zoneProgress } = useScrollDepth();
+  const { particleSpeedMult, bobAmplitude, brightness } = useDepthAnimations();
   const sectionRef = useRef(null);
   const jellyRef   = useRef([]);
   const canvasRef  = useRef(null);
@@ -42,18 +44,25 @@ export default function Twilight() {
       const h = canvas.height;
       const breathe = Math.sin(t * 0.001 + j.phase);
       const px = (j.x / 100) * w;
-      const py = ((j.y - t * j.speed) % 120 + 120) % 120 - 10;
+      
+      // Speed scales with global particleSpeedMult
+      const verticalSpeed = j.speed * particleSpeedMult * 50; 
+      const py = ((j.y - t * verticalSpeed * 0.001) % 120 + 120) % 120 - 10;
       const actualY = (py / 100) * h;
 
       ctx.save();
       ctx.translate(px, actualY);
       
+      // Adjust alpha based on depth brightness
+      const alphaBase = (0.1 + Math.abs(breathe) * 0.05) * brightness;
+      const strokeBase = (0.3 + Math.abs(breathe) * 0.2) * brightness;
+
       // Bell
       ctx.beginPath();
       ctx.arc(0, 0, j.size + breathe * 5, Math.PI, 0);
-      ctx.fillStyle = `rgba(144, 224, 239, ${0.1 + Math.abs(breathe) * 0.05})`;
+      ctx.fillStyle = `rgba(144, 224, 239, ${alphaBase})`;
       ctx.fill();
-      ctx.strokeStyle = `rgba(144, 224, 239, ${0.3 + Math.abs(breathe) * 0.2})`;
+      ctx.strokeStyle = `rgba(144, 224, 239, ${strokeBase})`;
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -81,16 +90,23 @@ export default function Twilight() {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [particleSpeedMult, brightness]); 
 
-  // Lag/delay effect on creature cards
+  // Lag/delay effect on creature cards + subtle bobbing
   useEffect(() => {
     const cards = sectionRef.current?.querySelectorAll('.twilight-creature');
     if (!cards) return;
     cards.forEach((card, i) => {
-      card.style.transitionDelay = `${i * 0.15 + scrollVelocity * 0.05}s`;
+      const delay = i * 0.15 + scrollVelocity * 0.05;
+      card.style.transitionDelay = `${delay}s`;
+      
+      // Apply subtle bobbing based on depthAnim.bobAmplitude
+      if (bobAmplitude > 0) {
+        const floatY = Math.sin(Date.now() * 0.001 + i) * bobAmplitude;
+        card.style.transform = `translateY(${floatY}px)`;
+      }
     });
-  }, [scrollVelocity]);
+  }, [scrollVelocity, bobAmplitude]);
 
   return (
     <section
@@ -99,14 +115,14 @@ export default function Twilight() {
       className="zone-section twilight-section"
       aria-label="Twilight Zone – 1000 to 4000 metres"
     >
-      <canvas ref={canvasRef} className="zone-canvas" style={{ opacity: 0.6 }} aria-hidden="true" />
+      <canvas ref={canvasRef} className="zone-canvas" style={{ opacity: 0.6 * brightness }} aria-hidden="true" />
       {/* Multi-layer depth fog */}
-      <div className="twilight-fog-layer fog-layer-1" aria-hidden="true" />
-      <div className="twilight-fog-layer fog-layer-2" aria-hidden="true" />
-      <div className="twilight-fog-layer fog-layer-3" aria-hidden="true" />
+      <div className="twilight-fog-layer fog-layer-1" style={{ opacity: 0.5 + zoneProgress * 0.5 }} aria-hidden="true" />
+      <div className="twilight-fog-layer fog-layer-2" style={{ opacity: 0.3 + zoneProgress * 0.4 }} aria-hidden="true" />
+      <div className="twilight-fog-layer fog-layer-3" style={{ opacity: 0.2 + zoneProgress * 0.3 }} aria-hidden="true" />
 
       {/* Bioluminescent particles */}
-      <div className="bio-particles" aria-hidden="true">
+      <div className="bio-particles" aria-hidden="true" style={{ opacity: 0.2 + zoneProgress * 0.8 }}>
         {Array.from({ length: 30 }).map((_, i) => (
           <div key={i} className={`bio-dot bio-dot-${i % 6}`} style={{
             left: `${(i * 37 + 5) % 100}%`,

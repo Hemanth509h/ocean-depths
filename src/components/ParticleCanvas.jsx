@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useDepth } from '../context/DepthContext';
+import { useDepthAnimations } from '../hooks/useDepthAnimations';
 import { PARTICLE_CONFIG } from '../utils/animationConfig';
 import { ZONE_NAMES as ZONE_NAME_LIST } from '../utils/depthUtils';
 
@@ -8,6 +9,7 @@ export default function ParticleCanvas() {
   const rafRef    = useRef(null);
   const particles = useRef([]);
   const { zoneIndex } = useDepth();
+  const { particleSpeedMult } = useDepthAnimations();
   const zoneName = ZONE_NAME_LIST[zoneIndex] || 'surface';
 
   const createParticle = (w, h, cfg) => ({
@@ -68,8 +70,8 @@ export default function ParticleCanvas() {
       }
 
       particles.current.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
+        p.x += p.vx * particleSpeedMult;
+        p.y += p.vy * particleSpeedMult;
         p.life -= p.decay;
         if (p.y < -10) { p.y = canvas.height + 5; p.life = 1; }
 

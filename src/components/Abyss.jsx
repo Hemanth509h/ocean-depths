@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { useScrollDepth } from '../hooks/useScrollDepth';
+import { useDepthAnimations } from '../hooks/useDepthAnimations';
 import { useReveal } from '../hooks/useReveal';
 import ThreeVolumetricDots from './ThreeVolumetricDots';
 
@@ -33,6 +34,7 @@ const EASTER_EGGS = [
 
 export default function Abyss({ audioRef }) {
   const { zoneProgress, scrollVelocity } = useScrollDepth();
+  const { brightness, particleSpeedMult, shakeIntensity } = useDepthAnimations();
   const seed = useMemo(() => Math.floor(Date.now() / 60000), []); // changes each visit
   const elements = useMemo(() => generateProceduralElements(seed), [seed]);
   const canvasRef = useRef(null);
@@ -63,9 +65,11 @@ export default function Abyss({ audioRef }) {
 
       elements.forEach(el => {
         const x = (el.x / 100) * canvas.width;
-        const y = ((el.y + Math.sin(ts * el.speed * 0.001 + el.phase) * 2) / 100) * canvas.height;
+        // Speed scales with depth
+        const verticalMove = Math.sin(ts * el.speed * 0.001 * particleSpeedMult * 10 + el.phase);
+        const y = ((el.y + verticalMove * 2) / 100) * canvas.height;
         const breathe = 0.5 + 0.5 * Math.sin(ts * 0.001 * el.speed + el.phase);
-        const alpha = el.opacity * breathe * (0.3 + zoneProgress * 0.7);
+        const alpha = el.opacity * breathe * (0.3 + zoneProgress * 0.7) * brightness;
 
         ctx.globalAlpha = alpha;
         ctx.fillStyle = '#03045e';
@@ -93,7 +97,7 @@ export default function Abyss({ audioRef }) {
       
       // Giant Body
       ctx.save();
-      ctx.globalAlpha = 0.02 + Math.sin(ts * 0.0005) * 0.01;
+      ctx.globalAlpha = (0.02 + Math.sin(ts * 0.0005) * 0.01) * brightness;
       const bodyGrd = ctx.createRadialGradient(ex, ey, 0, ex, ey, 400);
       bodyGrd.addColorStop(0, '#023e8a');
       bodyGrd.addColorStop(1, 'transparent');
@@ -145,8 +149,12 @@ export default function Abyss({ audioRef }) {
       className="zone-section abyss-section"
       aria-label="The Abyss — beyond 11000 metres"
     >
-      {showThree && <ThreeVolumetricDots count={350} opacity={0.2} color="#0077b6" />}
+      {showThree && <ThreeVolumetricDots count={350} opacity={0.2 * brightness} color="#0077b6" />}
       <canvas ref={canvasRef} className="zone-canvas abyss-canvas" aria-hidden="true" />
+      <div 
+        className="abyss-inner-wrapper" 
+        style={{ transform: `translate(${(Math.random()-0.5)*shakeIntensity*1.5}px, ${(Math.random()-0.5)*shakeIntensity*1.5}px)` }}
+      >
 
       {/* Easter eggs */}
       {EASTER_EGGS.map(egg => (
@@ -192,6 +200,7 @@ export default function Abyss({ audioRef }) {
 
       {/* Journey complete overlay effect */}
       <div className="abyss-vignette" aria-hidden="true" />
+      </div>
     </section>
   );
 }

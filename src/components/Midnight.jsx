@@ -1,11 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useScrollDepth } from '../hooks/useScrollDepth';
+import { useDepthAnimations } from '../hooks/useDepthAnimations';
 import { useReveal } from '../hooks/useReveal';
 import ThreeVolumetricDots from './ThreeVolumetricDots';
 import gsap from 'gsap';
 
 export default function Midnight() {
   const { zoneProgress, scrollVelocity } = useScrollDepth();
+  const { shakeIntensity, brightness, particleSpeedMult } = useDepthAnimations();
   const sectionRef = useRef(null);
   const shakeRef   = useRef(null);
   const canvasRef  = useRef(null);
@@ -47,8 +49,9 @@ export default function Midnight() {
       const h = canvas.height;
 
       shrimp.forEach(s => {
-        s.x += s.vx + (scrollVelocity * 0.1 * (s.vx > 0 ? 1 : -1));
-        s.y += s.vy;
+        const combinedSpeed = (s.vx + (scrollVelocity * 0.1 * (s.vx > 0 ? 1 : -1))) * particleSpeedMult;
+        s.x += combinedSpeed * 10; // scale back since particleSpeedMult is small here
+        s.y += s.vy * particleSpeedMult * 10;
 
         // Flocking-ish reset
         if (s.x < -10) s.x = 110;
@@ -61,8 +64,9 @@ export default function Midnight() {
 
         ctx.beginPath();
         ctx.arc(px, py, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(144, 224, 239, ${0.4 + Math.sin(t * 0.005 + s.x) * 0.3})`;
-        ctx.shadowBlur = 5;
+        const alpha = (0.4 + Math.sin(t * 0.005 + s.x) * 0.3) * brightness;
+        ctx.fillStyle = `rgba(144, 224, 239, ${alpha})`;
+        ctx.shadowBlur = 5 * brightness;
         ctx.shadowColor = '#90e0ef';
         ctx.fill();
         ctx.shadowBlur = 0;
@@ -76,24 +80,18 @@ export default function Midnight() {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
-  }, [scrollVelocity]);
+  }, [scrollVelocity, particleSpeedMult, brightness]);
 
   // Screen shake based on depth progress
   useEffect(() => {
     const el = shakeRef.current;
-    if (!el) return;
-    const intensity = zoneProgress * 6;
-    if (intensity < 0.5) return;
-    const shakeAnim = gsap.to(el, {
-      x: () => (Math.random() - 0.5) * intensity,
-      y: () => (Math.random() - 0.5) * intensity,
-      duration: 0.08,
-      repeat: 3,
-      yoyo: true,
-      ease: 'none',
-    });
-    return () => shakeAnim.kill();
-  }, [Math.floor(zoneProgress * 20)]);
+    if (!el || shakeIntensity < 0.1) return;
+    
+    // Continuous shake instead of discrete GSAP animation
+    const dx = (Math.random() - 0.5) * shakeIntensity;
+    const dy = (Math.random() - 0.5) * shakeIntensity;
+    el.style.transform = `translate(${dx}px, ${dy}px)`;
+  }, [shakeIntensity, zoneProgress]);
 
   return (
     <section
