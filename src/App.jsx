@@ -105,6 +105,7 @@ function OceanExperience() {
     const {
       brightness, saturation,
       vignetteOpacity, pressureTint, ambientHue,
+      glowRadius, glowColor,
     } = depthAnim;
 
     // CSS custom properties (available to all children)
@@ -113,6 +114,8 @@ function OceanExperience() {
     root.style.setProperty('--depth-vignette',     vignetteOpacity.toFixed(3));
     root.style.setProperty('--depth-pressure-tint',`${pressureTint}`);
     root.style.setProperty('--depth-hue',          `${ambientHue}deg`);
+    root.style.setProperty('--glow-r',             `${glowRadius}px`);
+    root.style.setProperty('--glow-c',             glowColor);
 
     // Apply filter directly to the main content wrapper
     if (mainRef.current) {

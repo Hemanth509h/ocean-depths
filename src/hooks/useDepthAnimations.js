@@ -12,8 +12,8 @@ export function useDepthAnimations() {
   const r = scrollRatio; // 0 → 1
 
   return useMemo(() => {
-    /* ── Brightness: 1.0 (surface) → 0.04 (abyss) ── */
-    const brightness = lerp(1.0, 0.04, r);
+    /* ── Brightness: 1.0 (surface) → 0.28 (abyss) ── */
+    const brightness = lerp(1.0, 0.28, r);
 
     /* ── CSS filter: blur increases with depth ── */
     const blur = mapRange(r, 0.3, 1.0, 0, 4); // no blur until twilight
@@ -35,10 +35,9 @@ export function useDepthAnimations() {
     const particleSpeedMult = lerp(1.0, 0.08, Math.pow(r, 1.4));
 
     /* ── Text glow based on depth ── */
-    const glowRadius = Math.round(lerp(8, 60, r));
-    const glowColor  = r < 0.5
-      ? `rgba(144,224,239,${lerp(0.15, 0.05, r * 2)})`
-      : `rgba(3,4,94,${lerp(0, 0.25, (r - 0.5) * 2)})`;
+    const glowRadius = Math.round(lerp(8, 55, r));
+    const glowStrength = lerp(0.12, 0.95, Math.pow(r, 0.55));
+    const glowColor  = `rgba(144,224,239,${glowStrength.toFixed(3)})`;
 
     /* ── Pressure shake: starts in midnight, builds in abyss ── */
     const shakeIntensity = r > 0.58
